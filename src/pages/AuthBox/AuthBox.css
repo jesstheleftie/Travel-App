@@ -1,0 +1,81 @@
+/* Overlay for the auth box */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Auth box styling */
+.auth-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.auth-box h2 {
+  margin-top: 0;
+}
+
+.auth-box form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-box label {
+  margin: 10px 0 5px;
+  align-self: flex-start;
+}
+
+.auth-box input {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.auth-box button[type="submit"] {
+  padding: 10px;
+  background-color: #b88a58;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-box button[type="submit"]:hover {
+  background-color: #d4b28d;
+}
+
+.signup-link {
+    display: block;
+    margin-top: 10px;
+    text-decoration: underline;
+    color: #007bff; /* Default link color */
+    text-align: center;
+  }
+  
+  .signup-link:hover {
+    color: #0056b3; /* Hover link color */
+  }

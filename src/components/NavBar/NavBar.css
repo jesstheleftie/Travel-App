@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #333;
+    background-color: #516d48;
   }
   
   .navbar h1 {
@@ -12,14 +12,27 @@
   
   .login-button {
     padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    background-color: #007bff;
+    border-radius: 10px;
+    background-color: #b88a58;
     color: white;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
+    border: 1px solid white;
   }
   
   .login-button:hover {
-    background-color: #0056b3;
+    background-color: #d4b28d;
   }
+
+  .appTitle {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none; /* Remove default underline */
+    margin: 15px;
+  }
+
+  
+  
+  

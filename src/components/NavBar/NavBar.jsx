@@ -1,11 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './NavBar.css';
 
-const NavBar = () => {
+const NavBar = ({ handleLoginClick}) => {
   return (
     <div className="navbar">
-      <h1>My Application</h1>
-      <button className="login-button">Login</button>
+      <Link to="/" className="appTitle">
+        <span role="img" aria-label="airplane">✈️</span> Travel with Illy
+      </Link>
+      <button onClick={handleLoginClick} className="login-button">Login</button>
     </div>
   );
 };
