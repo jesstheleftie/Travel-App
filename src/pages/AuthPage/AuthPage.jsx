@@ -2,9 +2,9 @@ import './AuthPage.css';
 
  const AuthPage=()=>{
     return (
-        <h2>
-          App2
-        </h2>
+        <h1>
+          Auth Page
+        </h1>
       )
  
 }
