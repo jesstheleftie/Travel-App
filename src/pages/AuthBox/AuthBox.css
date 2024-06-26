@@ -79,3 +79,9 @@
   .signup-link:hover {
     color: #0056b3; /* Hover link color */
   }
+
+  .signup-link.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }

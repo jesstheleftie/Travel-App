@@ -1,9 +1,11 @@
+
 import SignUpPage from '../../components/NavBar/SignUpPage/SignUpPage';
 import './AuthBox.css';
 import { Link } from 'react-router-dom';
 
 
- const AuthBox=({onClose,setShowAuthPopup})=>{
+
+ const AuthBox=({onClose, setShowAuthPopup})=>{
     return (
     
       <div className="auth-overlay">
@@ -21,7 +23,7 @@ import { Link } from 'react-router-dom';
         </form>
         <Link to="/signup" className="signup-link" onClick={()=>{
 //set pop up box to false
-setShowAuthPopup(false)
+        setShowAuthPopup(false)
         }}>Sign Up</Link>
       </div>
     </div>

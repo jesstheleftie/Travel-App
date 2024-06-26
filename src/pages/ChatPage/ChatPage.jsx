@@ -30,7 +30,7 @@ import React, { useState } from 'react';
           <input type="text" placeholder="Ask Illy anyting about traveling..." />
           <button>Send</button>
         </div>
-        <div className="aiTag"> Powered by <selection className="AI">AI</selection></div>
+        <div className="aiTag"> Powered by <span className="AI">AI</span></div>
       </div>
 
       </div>
