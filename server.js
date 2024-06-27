@@ -2,13 +2,16 @@ const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
+const bodyParser = require ('body-parser');
+const mongoose = require ('mongoose');
+const userRoutes = require ('./routes/api/users');
 
 //Always require and configure near the top
 require('dotenv').config();
 //connect to the database must come after env
 require('./config/database');
 const app = express();
-
+const PORT = process.env.PORT || 3000;
 
 app.use(logger('dev'));
 // there's no need to mount express.urlencoded middleware
@@ -20,7 +23,19 @@ app.use(favicon(path.join(__dirname, 'build', 'favicon.ico')));
 app.use(express.static(path.join(__dirname, 'build')));
 
 // Put API routes here, before the "catch all" route
+app.use(bodyParser.json());
+app.use('/api/users', userRoutes); 
 
+mongoose.connect(`${process.env.DATABASE_URL}`, {useNewUrlParser: true, useUnifiedTopology: true})
+.then (()=>{
+  app.listen(PORT, () =>{
+    console.log(`Server running on port ${PORT}`);
+  });
+
+})
+.catch((error)=>{
+  console.error(`Database connection error:`, error);
+})
 // The following "catch all" route (note the *) is necessary
 // to return the index.html on all non-AJAX requests
 app.get('/*', function(req, res) {
