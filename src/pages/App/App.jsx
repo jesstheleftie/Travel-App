@@ -27,7 +27,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage setUser={setUser}/>} />
         {/* Add more routes as needed */}
       </Routes>
-      {showAuthPopup && <AuthBox onClose={() => setShowAuthPopup(false)} setShowAuthPopup={setShowAuthPopup} />}
+      {showAuthPopup && <AuthBox onClose={() => setShowAuthPopup(false)} setShowAuthPopup={setShowAuthPopup} setUser={setUser}/>}
     </Layout>
   </Router>
 

@@ -2,8 +2,9 @@ import { useState } from "react";
 import SignUpPage from "../../components/NavBar/SignUpPage/SignUpPage";
 import "./AuthBox.css";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const AuthBox = ({ onClose, setShowAuthPopup }) => {
+const AuthBox = ({ onClose, setShowAuthPopup, setUser }) => {
   const [credentialInformation, setCredentialInformation] = useState({
     email: "",
     password: "",
@@ -16,11 +17,39 @@ const AuthBox = ({ onClose, setShowAuthPopup }) => {
     });
   };
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     //Fetch stuff here, afterwards setUser()
-    console.log("Login with API Call", credentialInformation);
+    try {
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: credentialInformation.email.toLowerCase(),
+          password: credentialInformation.password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(3);
+      if (response.ok) {
+        // setMessage("Sign up Successful!");
+        setUser({ username: data.username, email: data.email });
+        // setTimeout(() => {
+        //   navigate("/");
+        // }, 1000);
+        setShowAuthPopup(false);
+      } else {
+        setMessage(`Credentials not found!: ${data.message}`);
+      }
+    } catch (error) {
+      setMessage("Login Error!");
+    }
   };
 
   return (

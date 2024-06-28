@@ -28,7 +28,7 @@ const SignUpPage = ({ setUser }) => {
         const data = await response.json();
         if (response.ok) {
           setMessage("Sign up Successful!");
-          setUser({ username: data.username, email: data.email });
+          setUser({ username: data.username, email: data.email.toLowerCase() });
           setTimeout(() => {
             navigate("/");
           }, 1000);

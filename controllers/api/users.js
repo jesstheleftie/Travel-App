@@ -19,7 +19,7 @@ const signupUser = async (req, res) => {
       return res.status(400).json({ message: "User Name already exists" });
     }
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Create a new user
     const newUser = new User({
@@ -44,15 +44,12 @@ const login = async (req, res) => {
     const foundUser = await User.findOne({ email: req.body.email });
     if (!foundUser) res.status(400).json({ message: "Email Not Found" });
 
-    const match = bcrypt.compare(req.body.password, foundUser.password);
+    const match = await bcrypt.compare(req.body.password, foundUser.password);
 
-    console.log("match", match);
-
-    // res.status(201).json({
-    //     message: "User created successfully",
-    //     username: newUser.username,
-    //     email: newUser.email,
-    //   });
+    res.status(201).json({
+      username: foundUser.username,
+      email: foundUser.email,
+    });
   } catch {
     res.status(500).json({ message: "Server Error", error });
   }
