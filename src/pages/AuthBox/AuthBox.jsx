@@ -3,7 +3,7 @@ import SignUpPage from "../../components/NavBar/SignUpPage/SignUpPage";
 import "./AuthBox.css";
 import { Link } from "react-router-dom";
 
-const AuthBox = ({ onClose, setShowAuthPopup }) => {
+const AuthBox = ({ onClose, setShowAuthPopup}) => {
 
   const [credentialInformation, setCredentialInformation] = useState({username:'',password:''});
   const [error,setError] = useState('')

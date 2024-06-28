@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import './SignUpPage.css';
 
-const SignUpPage = () => {
+import { useNavigate } from 'react-router-dom';
+
+const SignUpPage = ({setUser}) => {
     const [username, setUsername] = useState('');
     const[email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
   const handleSignUp = async (event) => {
     event.preventDefault();
@@ -13,27 +17,35 @@ const SignUpPage = () => {
     if (password === confirmPassword) {
     // Add signup logic here
     try {
-        console.log('befpre')
+        
         const response = await fetch('/api/users/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
         },
           body: JSON.stringify({ username, email, password }),
+    
         });
-        console.log('after')
+     
+
 
         const data = await response.json();
+        console.log('data',data)
         if (response.ok) {
-          alert('Sign up form submitted successfully');
+          setMessage('Sign up Successful!');
+          setUser({ username });
+        
+          setTimeout(()=>{
+            navigate('/');
+          },1000);
         } else {
-          alert(data.message);
+            setMessage(`Sign up not successful: ${data.message}`);
         }
       } catch (error) {
-        alert('Error submitting signup form');
+        setMessage('Error submitting sign up form!');
       }
     } else {
-      alert('Passwords do not match');
+        setMessage('Passwords do not match');
     }
 };
 
@@ -80,6 +92,7 @@ const SignUpPage = () => {
 
 
         <button type="submit" disabled={!passwordsMatch}>Sign Up</button>
+        {message && <p className="signup-message">{message}</p>} {/* Display message here */}
       </form>
     </div>
   );

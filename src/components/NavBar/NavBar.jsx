@@ -2,14 +2,19 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './NavBar.css';
 
-const NavBar = ({ handleLoginClick}) => {
+const NavBar = ({ handleLoginClick, user, setUser}) => {
   return (
     <div className="navbar">
       <Link to="/" className="appTitle">
         <span role="img" aria-label="airplane">✈️</span> Travel with Illy
       </Link>
-      <button onClick={handleLoginClick} className="login-button">Login</button>
-    </div>
+
+      {user? (
+        <div className="user-greeting">Hello, {user.username}! <button onClick={()=>{setUser(null)}}>Logout</button></div>
+        
+      ) : (
+      <button onClick={handleLoginClick} className="login-button">Login</button>)}
+    </div> 
   );
 };
 

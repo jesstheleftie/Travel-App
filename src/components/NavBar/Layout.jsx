@@ -2,13 +2,14 @@ import React from 'react';
 
 import NavBar from './NavBar';
 
-const Layout = ({ children, setShowAuthPopup }) => {
+const Layout = ({ children, setShowAuthPopup, user, setUser }) => {
     const handleLoginClick = () => {
         setShowAuthPopup(true);
       };
+
   return (
     <div className="layout">
-      <NavBar handleLoginClick={handleLoginClick}/>
+      <NavBar handleLoginClick={handleLoginClick} user={user} setUser={setUser}/>
       <div className="content">
         {children}
       </div>

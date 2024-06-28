@@ -26,16 +26,16 @@ app.use(express.static(path.join(__dirname, 'build')));
 app.use(bodyParser.json());
 app.use('/api/users', userRoutes); 
 
-mongoose.connect(`${process.env.DATABASE_URL}`, {useNewUrlParser: true, useUnifiedTopology: true})
-.then (()=>{
-  app.listen(PORT, () =>{
-    console.log(`Server running on port ${PORT}`);
-  });
+// mongoose.connect(`${process.env.DATABASE_URL}`, {useNewUrlParser: true, useUnifiedTopology: true})
+// .then (()=>{
+//   app.listen(PORT, () =>{
+//     console.log(`Server running on port ${PORT}`);
+//   });
 
-})
-.catch((error)=>{
-  console.error(`Database connection error:`, error);
-})
+// })
+// .catch((error)=>{
+//   console.error(`Database connection error:`, error);
+// })
 // The following "catch all" route (note the *) is necessary
 // to return the index.html on all non-AJAX requests
 app.get('/*', function(req, res) {

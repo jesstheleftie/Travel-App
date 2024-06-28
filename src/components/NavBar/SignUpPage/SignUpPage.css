@@ -46,3 +46,14 @@
 .signup-form button:hover {
   background-color: #d4b28d;
 }
+
+.signup-message {
+    margin-top: 15px;
+    color: red;
+    text-align: center;
+  }
+
+  .signup-message {
+    margin-top: 10px;
+    color: red;
+  }
