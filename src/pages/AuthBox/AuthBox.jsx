@@ -3,10 +3,12 @@ import SignUpPage from "../../components/NavBar/SignUpPage/SignUpPage";
 import "./AuthBox.css";
 import { Link } from "react-router-dom";
 
-const AuthBox = ({ onClose, setShowAuthPopup}) => {
-
-  const [credentialInformation, setCredentialInformation] = useState({username:'',password:''});
-  const [error,setError] = useState('')
+const AuthBox = ({ onClose, setShowAuthPopup }) => {
+  const [credentialInformation, setCredentialInformation] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
   const handleChange = (e) => {
     setCredentialInformation({
       ...credentialInformation,
@@ -14,10 +16,12 @@ const AuthBox = ({ onClose, setShowAuthPopup}) => {
     });
   };
 
-const handleLogin = (e)=>{
-  e.preventDefault()
-console.log('Login with API Call', credentialInformation)
-}
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    //Fetch stuff here, afterwards setUser()
+    console.log("Login with API Call", credentialInformation);
+  };
 
   return (
     <div className="auth-overlay">
@@ -28,14 +32,14 @@ console.log('Login with API Call', credentialInformation)
         <h2>Login</h2>
         <div>{error}</div>
         <form autoComplete="off">
-          <label htmlFor="username">Username:</label>
-          {/* onChange={(e) => setUsername(e.target.value)} */}
+          <label htmlFor="email">Email:</label>
+          {/* onChange={(e) => setemail(e.target.value)} */}
           <input
             type="text"
-            id="username"
-            name="username"
+            id="email"
+            name="email"
             required
-            value={credentialInformation.username}
+            value={credentialInformation.email}
             onChange={handleChange}
           />
           <label htmlFor="password">Password:</label>
@@ -47,7 +51,9 @@ console.log('Login with API Call', credentialInformation)
             value={credentialInformation.password}
             onChange={handleChange}
           />
-          <button type="submit" onClick={handleLogin}>Login</button>
+          <button type="submit" onClick={handleLogin}>
+            Login
+          </button>
         </form>
         <Link
           to="/signup"
