@@ -24,8 +24,6 @@ const ChatPage = ({ user }) => {
   //   setShowAuthPopup(true);
   // };
 
-
-  
   const sendMessage = async () => {
     if (userMessage.trim() === "") return;
 
