@@ -24,6 +24,11 @@ const ChatPage = ({ user }) => {
   //   setShowAuthPopup(true);
   // };
 
+  const openai = new OpenAI({
+    apiKey: "sk-proj-rp5o6KgHqwMHBqrPdKVrT3BlbkFJoGZym5XLa3K6uUKAQ9RB",
+    dangerouslyAllowBrowser: true,
+    project: "proj_7bMjGbjvLN4CkTJsn2OQJlyY",
+  });
   const sendMessage = async () => {
     if (userMessage.trim() === "") return;
 
