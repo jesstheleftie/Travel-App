@@ -31,7 +31,7 @@ const SignUpPage = ({ setUser }) => {
           setUser({ username: data.username, email: data.email.toLowerCase() });
           setTimeout(() => {
             navigate("/");
-          }, 1000);
+          }, 100);
         } else {
           setMessage(`Sign up not successful: ${data.message}`);
         }

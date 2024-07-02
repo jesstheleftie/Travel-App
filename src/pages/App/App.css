@@ -1,3 +1,4 @@
+
 .App {
   text-align: center;
   background-color: #e8ddc4; 
@@ -36,5 +37,24 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.hero-container {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  /* max-height: 300px; */
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (min-width: 768px){
+  .hero-image {
+    content: url('../../Assets/Travel_App_Picture_Big_Screen.jpg')
   }
 }

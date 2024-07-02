@@ -5,33 +5,43 @@ import ChatPage from "../ChatPage/ChatPage";
 import MyFavouritesPage from "../MyFavouritesPage/MyFavouritesPage";
 import "./App.css";
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Switch, BrowserRouter, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Switch,
+  BrowserRouter,
+  Route,
+  // useLocation,
+} from "react-router-dom";
 
 function App() {
-
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ username: "123", email: "123@gmail.com" });
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const handleLoginClick =()=>{
+  const handleLoginClick = () => {
     setShowAuthPopup(true);
-    
   };
   //passdown prop into component
   //use prop inside component to make handle click
   //pass down handle click to navbar
-  
+
   return (
     <Router>
-    <Layout setShowAuthPopup={setShowAuthPopup} user={user} setUser={setUser} >
-      <Routes >
-        <Route path="/" element={<ChatPage />} />
-        <Route path="/signup" element={<SignUpPage setUser={setUser}/>} />
-        {/* Add more routes as needed */}
-      </Routes>
-      {showAuthPopup && <AuthBox onClose={() => setShowAuthPopup(false)} setShowAuthPopup={setShowAuthPopup} setUser={setUser}/>}
-    </Layout>
-  </Router>
-
-   
+      <Layout setShowAuthPopup={setShowAuthPopup} user={user} setUser={setUser}>
+        <Routes>
+          <Route path="/" element={<ChatPage user={user} />} />
+          <Route path="/signup" element={<SignUpPage setUser={setUser} />} />
+          {/* Add more routes as needed */}
+        </Routes>
+        {showAuthPopup && (
+          <AuthBox
+            onClose={() => setShowAuthPopup(false)}
+            setShowAuthPopup={setShowAuthPopup}
+            setUser={setUser}
+          />
+        )}
+      </Layout>
+    </Router>
   );
 }
 

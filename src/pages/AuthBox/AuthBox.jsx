@@ -40,9 +40,9 @@ const AuthBox = ({ onClose, setShowAuthPopup, setUser }) => {
       if (response.ok) {
         // setMessage("Sign up Successful!");
         setUser({ username: data.username, email: data.email });
-        // setTimeout(() => {
-        //   navigate("/");
-        // }, 1000);
+        setTimeout(() => {
+          navigate("/");
+        }, 100);
         setShowAuthPopup(false);
       } else {
         setMessage(`Credentials not found!: ${data.message}`);

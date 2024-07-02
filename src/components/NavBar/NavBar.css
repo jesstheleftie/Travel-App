@@ -2,8 +2,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    /* padding: 10px 20px; */
     background-color: #516d48;
+    height: 80px;
+    /* position: fixed ;
+    width: 100%; */
+
   }
   
   .navbar h1 {
@@ -11,6 +15,8 @@
   }
   
   .login-button {
+    /* padding: 10px 20px; */
+    margin-right: 15px;
     padding: 10px 20px;
     border-radius: 10px;
     background-color: #b88a58;
@@ -25,18 +31,27 @@
     background-color: #d4b28d;
   }
 
-  .appTitle {
-    font-size: 30px;
+  /* .appTitle {
+    font-size: 25px;
     font-weight: bold;
     color: white;
     text-decoration: none; /* Remove default underline */
-    margin: 15px;
-  }
+    /* margin: 15px;
+  } */ */
 
   
   .user-greeting {
-    font-size: 25px;
+    margin-top: 10px;
+    font-size: 16px;
     font-weight: bold;
-    
+    color: white;
   }
-  
+  .logoLink {
+    margin-right: auto;
+  }
+
+.logoImage {
+  width: 200px;
+  height: auto;
+  cursor: pointer;
+}

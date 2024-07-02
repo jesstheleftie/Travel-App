@@ -1,0 +1,9 @@
+export const oliveGreen = "#516d48";
+export const sageGreen = "#7a8d74";
+export const sobaBrown = "#dcbc90";
+export const caramelBrown = "#b88a58";
+export const caramelBrownLight = "#d4b28d";
+export const aiBlue = "rgb(0, 119, 255)";
+export const oat = "#e8ddc4";
+export const darkOat = "#f7efe5";
+export const sideNavWidth = 250;
