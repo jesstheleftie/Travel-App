@@ -2,7 +2,7 @@ import NavBar from "../../components/NavBar/NavBar";
 import AuthBox from "../AuthBox/AuthBox";
 import MyFavouritesPage from "../MyFavouritesPage/MyFavouritesPage";
 import "./ChatPage.css";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import OpenAI from "openai";
 import { darkOat, sideNavWidth } from "../../globalStyle";
 import heroImage from "../../Assets/Travel App Hero Page.jpg";
@@ -19,30 +19,179 @@ const ChatPage = ({ user }) => {
   const [userMessage, setUserMessage] = useState("");
   const messagesEndRef = useRef(null);
   const [showSideNav, setShowSideNav] = useState(true);
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  // const handleLoginClick = () => {
-  //   setShowAuthPopup(true);
-  // };
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
+  const [conversationArray, setConversationArray] = useState([]);
+  const [isSmallSize, setIsSmallSize] = useState(false);
+  const defaultConversationTitle = "New Chat";
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [conversationName, setConversationName] = useState(
+    defaultConversationTitle
+  );
+  const [editTitle, setEditTitle] = useState(false);
+  const [triggerRender, setTriggerRender] = useState(true);
 
+  // Format conversations into periods
+  const formattedPeriods = formatConversations(conversationArray);
+
+  const handleConversationClick = (conversationId) => {
+    if (isSmallSize) {
+      setShowSideNav(false);
+    }
+    setSelectedConversationId(conversationId);
+  };
+
+  //This function saves conversation to database by ID
+  const saveConversationToDatabase = async (conversationId) => {
+    let conversationArrayCopy = [...conversationArray];
+    const foundConversation = conversationArrayCopy.find((conversation) => {
+      return conversation._id === conversationId;
+    });
+    if (!foundConversation) return;
+
+    try {
+      const response = await fetch("/api/conversations/saveConversation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversation: foundConversation,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("data", data);
+        foundConversation._id = data.conversation._id;
+        delete foundConversation.isNew;
+
+        setSelectedConversationId(data.conversation._id);
+        // setConversationArray(data.conversations);
+        // setMessage("Sign up Successful!");
+        // setUser({ username: data.username, email: data.email });
+      } else {
+        // setMessage(`Credentials not found!: ${data.message}`);
+      }
+    } catch (error) {
+      // setMessage("Get Conversation Error!");
+    }
+  };
+
+  //delete function
+  const deleteConversation = async (conversationId) => {
+    if (!conversationId) return;
+    try {
+      const response = await fetch("/api/conversations/deleteConversation", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _id: conversationId,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        let conversationArrayCopy = [...conversationArray];
+
+        let updatedConversation = [];
+
+        conversationArrayCopy.forEach((conversation) => {
+          if (conversation._id !== conversationId) {
+            updatedConversation.push(conversation);
+          }
+        });
+
+        setConversationArray(updatedConversation);
+        setSelectedConversationId(null);
+        // setConversationArray(data.conversations);
+        // setMessage("Sign up Successful!");
+        // setUser({ username: data.username, email: data.email });
+        setShowDeletePopup(false);
+      } else {
+        // setMessage(`Credentials not found!: ${data.message}`);
+      }
+    } catch (error) {
+      // setMessage("Get Conversation Error!");
+    }
+  };
+
+  useEffect(() => {
+    saveConversationToDatabase(selectedConversationId);
+  }, [conversationArray, triggerRender]);
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const defaultFirstMessage = {
+    role: "assistant",
+    content:
+      "👋🏻 Hi, my name is Alva! I'm your travel connoisseur, how can I help you?",
+  };
+
+  // console.log("conversationArray", conversationArray);
+
+  const openai = new OpenAI({
+    apiKey: "sk-proj-rp5o6KgHqwMHBqrPdKVrT3BlbkFJoGZym5XLa3K6uUKAQ9RB",
+    dangerouslyAllowBrowser: true,
+    project: "proj_7bMjGbjvLN4CkTJsn2OQJlyY",
+  });
   const sendMessage = async () => {
     if (userMessage.trim() === "") return;
 
+    //If none existed, create it!
     const newMessage = { role: "user", content: userMessage };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    let temporaryMessageArray = [];
+    const randomId = generateRandomID(16);
+    let conversationArrayCopy = [...conversationArray];
+    if (!selectedConversationId) {
+      //
+      temporaryMessageArray = [defaultFirstMessage, newMessage];
+      const newConversationObj = {
+        conversationName: conversationName,
+        email: user.email,
+        lastEditedTime: Date.now(),
+        messagesArray: temporaryMessageArray,
+        _id: randomId,
+        isNew: true,
+      };
+      conversationArrayCopy = [newConversationObj, ...conversationArray];
+      setConversationArray(conversationArrayCopy);
+      setSelectedConversationId(randomId);
+    }
+    //What if it exists already? Find it!
+    else {
+      const foundConversation = conversationArrayCopy.find((conversation) => {
+        return conversation._id === selectedConversationId;
+      });
+      if (!foundConversation) return;
+      //
+      temporaryMessageArray = [newMessage, ...foundConversation.messagesArray];
+      foundConversation.messagesArray = temporaryMessageArray;
+      foundConversation.lastEditedTime = Date.now();
+      setConversationArray(conversationArrayCopy);
+    }
+
     setUserMessage("");
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [...messages, newMessage],
+      messages: temporaryMessageArray,
     });
 
     const assistantMessage = response.choices[0].message;
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      // newMessage,
-      assistantMessage,
-    ]);
+    const foundConversation = conversationArrayCopy.find((conversation) => {
+      if (selectedConversationId) {
+        return conversation._id === selectedConversationId;
+      } else {
+        return conversation._id === randomId;
+      }
+    });
+    if (!foundConversation) return;
+    foundConversation.messagesArray.push(assistantMessage);
+    setConversationArray(conversationArrayCopy);
+    setTriggerRender(!triggerRender);
   };
+
   const handleInputChange = (e) => {
     setUserMessage(e.target.value);
   };
@@ -53,13 +202,6 @@ const ChatPage = ({ user }) => {
     }
   };
 
-  const renderMessages = () => {
-    return messages.map((msg, index) => (
-      <div key={index} className={`message ${msg.role}`}>
-        <p>{msg.content}</p>
-      </div>
-    ));
-  };
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -80,80 +222,36 @@ const ChatPage = ({ user }) => {
     return randomID;
   };
 
-  // Dummy conversation array
-  const dummyConversationArray = [
-    {
-      id: 1,
-      conversationName: "France",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to france" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
-    },
-    {
-      id: 2,
-      conversationName: "California",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to California" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
-    },
-    {
-      id: 3,
-      conversationName: "Italy",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to italy" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 24 * 60 * 60 * 1000, // 24 hours ago
-    },
-    {
-      id: 4,
-      conversationName: "China",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to china" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-    },
-    {
-      id: 5,
-      conversationName: "Japan",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to japan" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 20 * 24 * 60 * 60 * 1000, // 20 days ago
-    },
-    {
-      id: 6,
-      conversationName: "Germany",
-      messagesArray: [
-        { role: "assistant", content: "How can I help you today" },
-        { role: "user", content: "Want to go to germany" },
-        { role: "assistant", content: "Great let me help you" },
-      ],
-      lastEditedTime: Date.now() - 40 * 24 * 60 * 60 * 1000, // 40 days ago
-    },
-  ];
-  // Format conversations into periods
-  const formattedPeriods = formatConversations(dummyConversationArray);
+  const runGetConversations = async () => {
+    try {
+      const response = await fetch("/api/conversations/getConversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+        }),
+      });
 
-  const handleConversationClick = (conversationId) => {
-    if (isSmallSize) {
-      setShowSideNav(false);
+      const data = await response.json();
+      if (response.ok) {
+        setConversationArray(data.conversations);
+        // setMessage("Sign up Successful!");
+        // setUser({ username: data.username, email: data.email });
+      } else {
+        // setMessage(`Credentials not found!: ${data.message}`);
+      }
+    } catch (error) {
+      // setMessage("Get Conversation Error!");
     }
-    setSelectedConversation(conversationId);
   };
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    if (conversationArray.length === 0) {
+      runGetConversations();
+    }
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -168,8 +266,6 @@ const ChatPage = ({ user }) => {
     };
   }, []);
 
-  const [isSmallSize, setIsSmallSize] = useState(false);
-
   useEffect(() => {
     //run something
     setIsSmallSize(windowWidth < 769);
@@ -183,8 +279,114 @@ const ChatPage = ({ user }) => {
     }
   }, [isSmallSize]);
 
+  //Focus on input
+  useEffect(() => {
+    if (!editTitle) return;
+    setTimeout(() => {
+      document.getElementById("titleChangeBox").focus();
+    }, 500);
+  }, [editTitle]);
+  //Change title name when rendering
+
+  const [conversationNameString, setConversationNameString] = useState("");
+
+  useEffect(() => {
+    if (!selectedConversationId) {
+      setConversationNameString(defaultConversationTitle);
+    }
+    const conversation = conversationArray.find((conversation) => {
+      return conversation._id === selectedConversationId;
+    });
+    if (!conversation || !conversation.conversationName) return;
+    setConversationNameString(conversation.conversationName);
+  }, [selectedConversationId, conversationArray]);
+
+  const handleNameChange = (e) => {
+    if (!selectedConversationId) {
+      setConversationName(e.target.value);
+    } else {
+      let conversationArrayCopy = [...conversationArray];
+
+      const foundConversation = conversationArrayCopy.find((conversation) => {
+        return conversation._id === selectedConversationId;
+      });
+
+      if (!foundConversation) return;
+
+      foundConversation.conversationName = e.target.value;
+
+      setConversationArray(conversationArrayCopy);
+    }
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: "1 1 auto" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: "1 1 auto",
+      }}
+    >
+      {showDeletePopup && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            bottom: 0,
+            backgroundColor: "rgb(150,150,150,0.5)",
+            zIndex: 5,
+            width: "100vw",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              height: "100px",
+              width: "400px",
+              background: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around",
+              flexDirection: "column",
+            }}
+          >
+            <div>Are you sure you want to delete this conversation?</div>
+            <div style={{ display: "flex" }}>
+              <div
+                style={{
+                  // marginTop: "10px",
+                  padding: "5px 10px",
+                  background: "rgb(200,100,100)",
+                  width: "100px",
+                  textAlign: "center",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+                onClick={() => deleteConversation(selectedConversationId)}
+              >
+                Delete
+              </div>
+              <div
+                style={{
+                  marginLeft: "10px",
+                  padding: "5px 10px",
+                  background: "rgb(100,100,100)",
+                  width: "100px",
+                  textAlign: "center",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+                onClick={() => setShowDeletePopup(false)}
+              >
+                Cancel
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {!user && (
         <div className="hero-container">
           <img src={heroImage} alt="Hero" className="hero-image" />
@@ -237,6 +439,21 @@ const ChatPage = ({ user }) => {
               marginLeft: "10px",
               color: "#b88a58",
               fontWeight: "bold",
+              cursor: "pointer",
+            }}
+            className="startChatHover"
+            onClick={() => {
+              setSelectedConversationId(null);
+              setConversationName(defaultConversationTitle);
+            }}
+          >
+            Start New Chat
+          </div>
+          <div
+            style={{
+              marginLeft: "10px",
+              color: "#b88a58",
+              fontWeight: "bold",
             }}
           >
             Chat&nbsp;History
@@ -250,11 +467,11 @@ const ChatPage = ({ user }) => {
                 </div>
                 {formattedPeriods[period].conversation.map((item, index) => (
                   <div
-                    key={item.id}
+                    key={index}
                     style={{ cursor: "pointer", marginLeft: "10px" }}
                     onClick={() => {
                       console.log("item", item);
-                      handleConversationClick(item.conversation.id);
+                      handleConversationClick(item.conversation._id);
                     }}
                   >
                     {item.conversation.conversationName}
@@ -304,11 +521,86 @@ const ChatPage = ({ user }) => {
                 flexDirection: "column",
               }}
             >
-              <div className="chatBoxTitle">New Chat</div>
-              {selectedConversation &&
-                dummyConversationArray
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "start",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  <div>
+                    {!editTitle ? (
+                      <div
+                        className="chatBoxTitle"
+                        style={{ border: "1px solid transparent" }}
+                      >
+                        {selectedConversationId
+                          ? conversationNameString
+                          : conversationName}
+                      </div>
+                    ) : (
+                      <input
+                        value={
+                          selectedConversationId
+                            ? conversationNameString
+                            : conversationName
+                        }
+                        onChange={(e) => {
+                          handleNameChange(e);
+                        }}
+                        id="titleChangeBox"
+                        style={{
+                          background: "transparent",
+                          border: "1px solid white",
+                          outline: "none",
+                          borderRadius: "5px",
+                          color: "white",
+                          fontWeight: "bold",
+                          fontSize: "16px",
+                          maxWidth: "500px",
+                        }}
+                      />
+                    )}
+
+                    <div
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "10px",
+                        fontWeight: "bold",
+                        color: "rgb(200,200,200)",
+                        textAlign: "left",
+                      }}
+                      onClick={() => {
+                        setEditTitle(!editTitle);
+                      }}
+                    >
+                      {editTitle ? "Done" : "Edit"}
+                    </div>
+                  </div>
+                  {selectedConversationId && (
+                    <div
+                      onClick={() => {
+                        setShowDeletePopup(true);
+                      }}
+                    >
+                      Delete
+                    </div>
+                  )}
+                </div>
+              </div>
+              {selectedConversationId &&
+                conversationArray
                   .find((eachConvo) => {
-                    return eachConvo.id === selectedConversation;
+                    return eachConvo._id === selectedConversationId;
                   })
                   .messagesArray.map((message, index) => (
                     <div
@@ -326,6 +618,24 @@ const ChatPage = ({ user }) => {
                       {message.content}
                     </div>
                   ))}
+
+              {!selectedConversationId &&
+                messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`message ${message.role}`}
+                    style={{
+                      maxWidth: "70%",
+                      textAlign: "left",
+                      borderRadius: "15px",
+                      padding: "5px 15px",
+                      lineHeight: "20px",
+                      margin: "5px 20px 5px 0px",
+                    }}
+                  >
+                    {message.content}
+                  </div>
+                ))}
               <div ref={messagesEndRef} />
             </div>
 
@@ -351,7 +661,11 @@ const ChatPage = ({ user }) => {
               style={{ display: "flex", justifyContent: "center" }}
             >
               Powered by{" "}
-              <span className="AI" style={{ marginLeft: "5px" }}>
+              <span
+                className="AI"
+                style={{ marginLeft: "5px" }}
+                // onClick={() => runGetConversations()}
+              >
                 AI
               </span>
             </div>
